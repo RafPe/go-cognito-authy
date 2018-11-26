@@ -56,8 +56,17 @@ func main() {
 	app.Before = func(c *cli.Context) error {
 		var sesErr error
 
-		if c.String("profile") != "-" {
-
+		switch c.String("profile") {
+		case "-", "":
+			ses, sesErr = session.NewSession(&aws.Config{
+				Region:      aws.String(c.String("region")),
+				Credentials: credentials.NewStaticCredentials(c.String("access-key"), c.String("secret-key"), ""),
+			})
+			if sesErr != nil {
+				fmt.Println(sesErr)
+				os.Exit(1)
+			}
+		default:
 			sessionParams = session.Options{
 				Profile: c.String("profile"),
 				Config:  aws.Config{Region: aws.String(c.String("region"))},
@@ -68,15 +77,6 @@ func main() {
 				fmt.Println(sesErr)
 				os.Exit(1)
 			}
-		}
-
-		ses, sesErr = session.NewSession(&aws.Config{
-			Region:      aws.String(c.String("region")),
-			Credentials: credentials.NewStaticCredentials(c.String("access-key"), c.String("secret-key"), ""),
-		})
-		if sesErr != nil {
-			fmt.Println(sesErr)
-			os.Exit(1)
 		}
 
 		cip = cognitoidentityprovider.New(ses)
