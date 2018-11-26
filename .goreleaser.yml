@@ -1,0 +1,26 @@
+# Build customization
+builds:
+  -
+    binary: "{{ .ProjectName }}"
+    ldflags: -s -w -X main.appName={{ .ProjectName }} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.appVer={{.Tag}}
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
+archive:
+  name_template: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}"
+  replacements:
+    darwin: mac
+  format: binary
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
+release:
+  name_template: "{{.ProjectName}} v{{.Version}}"
+changelog:
+  filters:
+    exclude:
+      - '[b|B]ump.*\sversion'
+      - '.*typo.*'
+      - '[V|v]ersion.*\sbump'
